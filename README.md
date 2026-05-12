@@ -77,7 +77,7 @@ https://drive.google.com/file/d/1NTfVHhRYMqIB3rpRV8B_voHHHSfAptqV/view?usp=shari
 ## Clone Repository
 
 ```bash
-git clone https://github.com/your-username/your-repository-name.git
+git clone https://github.com/BobbyBohra/Animal-classification-mode
 ```
 
 ---
