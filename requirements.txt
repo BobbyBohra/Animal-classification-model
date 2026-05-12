@@ -4,3 +4,4 @@ flask-bcrypt
 pillow
 numpy
 python-dotenv
+gunicorn
