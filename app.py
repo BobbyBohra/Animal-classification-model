@@ -6,37 +6,20 @@ from PIL import Image
 import random
 import base64
 from io import BytesIO
-import os
 
 app = Flask(__name__)
 
-# =========================
-# SECRET KEY
-# =========================
-
+# Secret Key
 app.secret_key = "your-secret-key"
 
-# =========================
-# DATABASE CONFIG
-# =========================
-
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-
-app.config['SQLALCHEMY_DATABASE_URI'] = \
-    'sqlite:///' + os.path.join(BASE_DIR, 'users.db')
-
+# Database Config
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# =========================
-# MAX UPLOAD SIZE
-# =========================
-
+# Max Upload Size = 500 MB
 app.config['MAX_CONTENT_LENGTH'] = 500 * 1024 * 1024
 
-# =========================
-# INIT
-# =========================
-
+# Initialize DB + Bcrypt
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
@@ -62,10 +45,7 @@ class User(db.Model):
         nullable=False
     )
 
-# =========================
-# CREATE DB
-# =========================
-
+# Create DB Tables
 with app.app_context():
     db.create_all()
 
@@ -74,7 +54,6 @@ with app.app_context():
 # =========================
 
 class_names = [
-
     'Bear',
     'Bird',
     'Cat',
@@ -90,7 +69,6 @@ class_names = [
     'Panda',
     'Tiger',
     'Zebra'
-
 ]
 
 animal_facts = {
@@ -141,35 +119,26 @@ animal_facts = {
     'Zebras are black with white stripes, not white with black!'
 }
 
-# =========================
-# ALLOWED FILES
-# =========================
-
+# Allowed Extensions
 ALLOWED_EXTENSIONS = {
-
     'png',
     'jpg',
     'jpeg',
     'gif',
     'bmp',
     'webp'
-
 }
 
 def allowed_file(filename):
 
     return (
-
         '.' in filename and
-
         filename.rsplit('.', 1)[1].lower()
-
         in ALLOWED_EXTENSIONS
-
     )
 
 # =========================
-# LOGIN REQUIRED
+# LOGIN DECORATOR
 # =========================
 
 def login_required(f):
@@ -181,10 +150,7 @@ def login_required(f):
         if 'user_id' not in session:
 
             flash('Please login first!')
-
-            return redirect(
-                url_for('login')
-            )
+            return redirect(url_for('login'))
 
         return f(*args, **kwargs)
 
@@ -197,9 +163,7 @@ def login_required(f):
 @app.route('/')
 def home():
 
-    return redirect(
-        url_for('login')
-    )
+    return redirect(url_for('login'))
 
 # =========================
 # REGISTER
@@ -220,10 +184,7 @@ def register():
         if existing_user:
 
             flash('Username already exists!')
-
-            return redirect(
-                url_for('register')
-            )
+            return redirect(url_for('register'))
 
         hashed_password = bcrypt.generate_password_hash(
             password
@@ -238,10 +199,7 @@ def register():
         db.session.commit()
 
         flash('Registration successful!')
-
-        return redirect(
-            url_for('login')
-        )
+        return redirect(url_for('login'))
 
     return render_template('register.html')
 
@@ -271,9 +229,7 @@ def login():
 
             flash(f'Welcome back, {username}!')
 
-            return redirect(
-                url_for('dashboard')
-            )
+            return redirect(url_for('dashboard'))
 
         else:
 
@@ -290,11 +246,8 @@ def login():
 def dashboard():
 
     return render_template(
-
         'dashboard.html',
-
         username=session.get('username')
-
     )
 
 # =========================
@@ -310,33 +263,27 @@ def predict():
         if 'image' not in request.files:
 
             flash('No image uploaded!')
-
-            return redirect(
-                url_for('dashboard')
-            )
+            return redirect(url_for('dashboard'))
 
         file = request.files['image']
 
         if file.filename == '':
 
             flash('No file selected!')
-
-            return redirect(
-                url_for('dashboard')
-            )
+            return redirect(url_for('dashboard'))
 
         if not allowed_file(file.filename):
 
             flash('Invalid image format!')
+            return redirect(url_for('dashboard'))
 
-            return redirect(
-                url_for('dashboard')
-            )
-
+        # Open Image
         img = Image.open(file).convert('RGB')
 
+        # Resize
         img.thumbnail((300, 300))
 
+        # Convert to Base64
         buffer = BytesIO()
 
         img.save(
@@ -348,9 +295,8 @@ def predict():
             buffer.getvalue()
         ).decode()
 
-        prediction = random.choice(
-            class_names
-        )
+        # Fake Prediction
+        prediction = random.choice(class_names)
 
         confidence = round(
             random.uniform(70, 98),
@@ -363,17 +309,11 @@ def predict():
         )
 
         return render_template(
-
             'result.html',
-
             prediction=prediction,
-
             confidence=confidence,
-
             image=img_base64,
-
             fact=fact
-
         )
 
     except Exception as e:
@@ -396,7 +336,7 @@ def predict_batch():
 
         files = request.files.getlist('files')
 
-        if len(files) == 0:
+        if not files:
 
             flash('No files selected!')
 
@@ -440,11 +380,6 @@ def predict_batch():
                     1
                 )
 
-                fact = animal_facts.get(
-                    prediction,
-                    'Amazing animal!'
-                )
-
                 results.append({
 
                     'filename':
@@ -460,21 +395,13 @@ def predict_batch():
                     img_base64,
 
                     'fact':
-                    fact
+                    animal_facts.get(prediction)
 
                 })
 
             except Exception as e:
 
-                print("Image Error:", e)
-
-        if len(results) == 0:
-
-            flash('No valid images uploaded!')
-
-            return redirect(
-                url_for('dashboard')
-            )
+                print(e)
 
         return render_template(
 
@@ -488,7 +415,7 @@ def predict_batch():
 
     except Exception as e:
 
-        flash(f'Batch Error: {str(e)}')
+        flash(str(e))
 
         return redirect(
             url_for('dashboard')
@@ -511,7 +438,7 @@ def logout():
     )
 
 # =========================
-# RUN APP
+# RUN FLASK APP
 # =========================
 
 if __name__ == "__main__":
