@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Result - Animal Classifier</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh; color: #fff;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 20px; padding: 40px;
+            max-width: 480px; width: 100%; margin: 20px;
+            text-align: center;
+        }
+        .animal-img {
+            width: 220px; height: 220px; object-fit: cover;
+            border-radius: 16px; margin-bottom: 25px;
+            border: 3px solid rgba(79,195,247,0.4);
+            box-shadow: 0 0 30px rgba(79,195,247,0.2);
+        }
+        h2 { font-size: 14px; color: #aaa; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+        .prediction { font-size: 42px; font-weight: 700; color: #4fc3f7; margin-bottom: 5px; }
+        .confidence { font-size: 15px; color: #aaa; margin-bottom: 25px; }
+        .confidence span { color: #81c784; font-weight: 600; }
+        .fact-box {
+            background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.2);
+            border-radius: 12px; padding: 16px; margin-bottom: 25px;
+            font-size: 14px; color: #ffd54f; line-height: 1.6;
+        }
+        .fact-box::before { content: '💡 Fun Fact: '; font-weight: 600; }
+        .back-btn {
+            display: inline-block; padding: 12px 28px; border-radius: 10px;
+            background: linear-gradient(135deg, #4fc3f7, #0288d1);
+            color: #fff; text-decoration: none; font-weight: 600; font-size: 15px;
+            transition: opacity 0.2s;
+        }
+        .back-btn:hover { opacity: 0.85; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <img src="data:image/jpeg;base64,{{ image }}" alt="Uploaded animal" class="animal-img">
+        <h2>Prediction Result</h2>
+        <div class="prediction">{{ prediction }}</div>
+        <div class="confidence">Confidence: <span>{{ "%.1f"|format(confidence) }}%</span></div>
+        <div class="fact-box">{{ fact }}</div>
+        <a href="{{ url_for('dashboard') }}" class="back-btn">← Predict Another</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Animal Classifier</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            font-family:'Segoe UI',sans-serif;
+            background:linear-gradient(
+                135deg,
+                #1a1a2e 0%,
+                #16213e 50%,
+                #0f3460 100%
+            );
+            min-height:100vh;
+            color:#fff;
+        }
+
+        nav{
+            background:rgba(255,255,255,0.05);
+            backdrop-filter:blur(10px);
+            border-bottom:1px solid rgba(255,255,255,0.1);
+
+            padding:15px 30px;
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        .nav-brand{
+            font-size:22px;
+            font-weight:700;
+        }
+
+        .nav-brand span{
+            color:#4fc3f7;
+        }
+
+        .nav-right{
+            display:flex;
+            align-items:center;
+            gap:15px;
+        }
+
+        .nav-user{
+            color:#aaa;
+            font-size:14px;
+        }
+
+        .nav-user strong{
+            color:#fff;
+        }
+
+        .logout-btn{
+            padding:8px 18px;
+            border-radius:8px;
+
+            background:rgba(255,100,100,0.2);
+            border:1px solid rgba(255,100,100,0.3);
+
+            color:#ff8080;
+            text-decoration:none;
+            font-size:14px;
+        }
+
+        .container{
+            max-width:1000px;
+            margin:auto;
+            padding:40px 20px;
+        }
+
+        .flash{
+            background:rgba(255,100,100,0.15);
+            border:1px solid rgba(255,100,100,0.3);
+
+            color:#ff8080;
+
+            padding:12px 18px;
+            border-radius:10px;
+
+            margin-bottom:20px;
+        }
+
+        .flash.success{
+            background:rgba(100,255,150,0.1);
+            border-color:rgba(100,255,150,0.3);
+            color:#80ff9f;
+        }
+
+        h2{
+            margin-bottom:10px;
+            font-size:28px;
+        }
+
+        .welcome-sub{
+            color:#aaa;
+            margin-bottom:35px;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:25px;
+        }
+
+        @media(max-width:700px){
+            .grid{
+                grid-template-columns:1fr;
+            }
+        }
+
+        .card{
+            background:rgba(255,255,255,0.05);
+            border:1px solid rgba(255,255,255,0.1);
+
+            backdrop-filter:blur(10px);
+
+            border-radius:18px;
+
+            padding:30px;
+        }
+
+        .card-title{
+            font-size:20px;
+            font-weight:600;
+            margin-bottom:8px;
+        }
+
+        .card-sub{
+            color:#aaa;
+            margin-bottom:20px;
+            font-size:14px;
+        }
+
+        .upload-area{
+            position:relative;
+
+            border:2px dashed rgba(255,255,255,0.2);
+
+            border-radius:12px;
+
+            padding:25px;
+
+            text-align:center;
+
+            cursor:pointer;
+
+            transition:0.3s;
+
+            margin-bottom:15px;
+        }
+
+        .upload-area:hover{
+            border-color:#4fc3f7;
+            background:rgba(79,195,247,0.05);
+        }
+
+        .upload-area input[type="file"]{
+            position:absolute;
+            inset:0;
+
+            opacity:0;
+
+            width:100%;
+            height:100%;
+
+            cursor:pointer;
+        }
+
+        .upload-icon{
+            font-size:38px;
+            margin-bottom:10px;
+        }
+
+        .upload-text{
+            color:#aaa;
+            font-size:14px;
+        }
+
+        .upload-text strong{
+            color:#fff;
+        }
+
+        .file-count{
+            margin-top:8px;
+            color:#81c784;
+            font-weight:600;
+            font-size:13px;
+        }
+
+        .preview-strip{
+            display:flex;
+            gap:8px;
+            flex-wrap:wrap;
+
+            margin-bottom:15px;
+        }
+
+        .preview-strip img{
+            width:60px;
+            height:60px;
+
+            object-fit:cover;
+
+            border-radius:8px;
+            border:2px solid rgba(255,255,255,0.15);
+        }
+
+        .more-badge{
+            width:60px;
+            height:60px;
+
+            border-radius:8px;
+
+            display:flex;
+            justify-content:center;
+            align-items:center;
+
+            background:rgba(255,255,255,0.08);
+
+            color:#aaa;
+            font-size:12px;
+        }
+
+        button[type="submit"]{
+            width:100%;
+
+            padding:12px;
+
+            border:none;
+
+            border-radius:10px;
+
+            font-size:15px;
+            font-weight:600;
+
+            cursor:pointer;
+        }
+
+        .btn-single{
+            background:linear-gradient(
+                135deg,
+                #4fc3f7,
+                #0288d1
+            );
+
+            color:#fff;
+        }
+
+        .btn-batch{
+            background:linear-gradient(
+                135deg,
+                #81c784,
+                #388e3c
+            );
+
+            color:#fff;
+        }
+
+        .tip{
+            margin-top:15px;
+
+            background:rgba(255,193,7,0.1);
+            border:1px solid rgba(255,193,7,0.25);
+
+            border-radius:10px;
+
+            padding:12px 15px;
+
+            color:#ffd54f;
+            font-size:13px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <nav>
+
+        <div class="nav-brand">
+            🐾 Animal <span>Classifier</span>
+        </div>
+
+        <div class="nav-right">
+
+            <span class="nav-user">
+                Hello,
+                <strong>{{ username }}</strong>
+            </span>
+
+            <a href="{{ url_for('logout') }}"
+               class="logout-btn">
+
+               Logout
+
+            </a>
+
+        </div>
+
+    </nav>
+
+    <div class="container">
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+
+                    <div class="flash {% if 'Welcome' in message %}success{% endif %}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <h2>
+            Welcome back, {{ username }} 👋
+        </h2>
+
+        <p class="welcome-sub">
+            Upload animal images for prediction
+        </p>
+
+        <div class="grid">
+
+            <!-- SINGLE IMAGE -->
+
+            <div class="card">
+
+                <div class="card-title">
+                    🖼️ Single Image
+                </div>
+
+                <p class="card-sub">
+                    Upload one image
+                </p>
+
+                <form
+                    action="{{ url_for('predict') }}"
+                    method="POST"
+                    enctype="multipart/form-data"
+                >
+
+                    <div class="upload-area">
+
+                        <input
+                            type="file"
+                            name="image"
+                            accept="image/*"
+                            id="single-input"
+                            required
+                        >
+
+                        <div class="upload-icon">
+                            📷
+                        </div>
+
+                        <div class="upload-text">
+                            <strong>Click to choose</strong>
+                            an image
+                        </div>
+
+                        <div
+                            class="file-count"
+                            id="single-label"
+                        ></div>
+
+                    </div>
+
+                    <div
+                        id="single-preview"
+                        class="preview-strip"
+                    ></div>
+
+                    <button
+                        type="submit"
+                        class="btn-single"
+                    >
+                        🔍 Predict Animal
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- BATCH IMAGE -->
+
+            <div class="card">
+
+                <div class="card-title">
+                    📁 Batch / Folder Upload
+                </div>
+
+                <p class="card-sub">
+                    Upload multiple images or full folder
+                </p>
+
+                <form
+                    action="{{ url_for('predict_batch') }}"
+                    method="POST"
+                    enctype="multipart/form-data"
+                >
+
+                    <div
+                        class="upload-area"
+                        id="batch-area"
+                    >
+
+                        <!-- IMPORTANT -->
+                        <input
+                            type="file"
+                            name="files"
+                            accept="image/*"
+                            multiple
+                            webkitdirectory
+                            id="batch-input"
+                        >
+
+                        <div class="upload-icon">
+                            📂
+                        </div>
+
+                        <div class="upload-text">
+                            <strong>Click to choose folder</strong>
+                            ya multiple images
+                        </div>
+
+                        <div
+                            class="file-count"
+                            id="batch-label"
+                        ></div>
+
+                    </div>
+
+                    <!-- BUTTONS -->
+
+                    <div
+                        style="
+                            margin-bottom:15px;
+                            display:flex;
+                            gap:10px;
+                        "
+                    >
+
+                        <button
+                            type="button"
+                            onclick="setFolderMode(true)"
+                            id="btn-folder"
+                            style="
+                                flex:1;
+                                padding:8px;
+                                border-radius:8px;
+                                border:1px solid #4fc3f7;
+                                background:rgba(79,195,247,0.15);
+                                color:#4fc3f7;
+                                cursor:pointer;
+                            "
+                        >
+
+                            📁 Folder Mode
+
+                        </button>
+
+                        <button
+                            type="button"
+                            onclick="setFolderMode(false)"
+                            id="btn-multi"
+                            style="
+                                flex:1;
+                                padding:8px;
+                                border-radius:8px;
+                                border:1px solid rgba(255,255,255,0.15);
+                                background:transparent;
+                                color:#aaa;
+                                cursor:pointer;
+                            "
+                        >
+
+                            🖼️ Multi-File Mode
+
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="batch-preview"
+                        class="preview-strip"
+                    ></div>
+
+                    <button
+                        type="submit"
+                        class="btn-batch"
+                    >
+                        🚀 Predict All
+                    </button>
+
+                </form>
+
+                <div class="tip">
+
+                    <strong>💡 Tip</strong>
+
+                    Folder Mode:
+                    poora folder select hoga
+
+                    <br><br>
+
+                    Multi-File Mode:
+                    Ctrl + Click se multiple images select karo
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // SINGLE IMAGE PREVIEW
+
+        document
+            .getElementById('single-input')
+            .addEventListener('change', function(){
+
+                const files = this.files;
+
+                document.getElementById(
+                    'single-label'
+                ).textContent =
+                    files.length
+                    ? `✅ ${files[0].name} selected`
+                    : '';
+
+                const preview =
+                    document.getElementById(
+                        'single-preview'
+                    );
+
+                preview.innerHTML = '';
+
+                if(files[0]){
+
+                    const img =
+                        document.createElement('img');
+
+                    img.src =
+                        URL.createObjectURL(files[0]);
+
+                    preview.appendChild(img);
+                }
+
+            });
+
+        // BATCH IMAGE PREVIEW
+
+        document
+            .getElementById('batch-input')
+            .addEventListener('change', function(){
+
+                const files = this.files;
+
+                const label =
+                    document.getElementById(
+                        'batch-label'
+                    );
+
+                const preview =
+                    document.getElementById(
+                        'batch-preview'
+                    );
+
+                preview.innerHTML = '';
+
+                label.textContent =
+                    files.length
+                    ? `✅ ${files.length} files selected`
+                    : '';
+
+                const MAX_PREVIEW = 8;
+
+                Array.from(files)
+                    .slice(0, MAX_PREVIEW)
+                    .forEach(file => {
+
+                        if(file.type.startsWith('image/')){
+
+                            const img =
+                                document.createElement('img');
+
+                            img.src =
+                                URL.createObjectURL(file);
+
+                            preview.appendChild(img);
+
+                        }
+
+                    });
+
+                if(files.length > MAX_PREVIEW){
+
+                    const badge =
+                        document.createElement('div');
+
+                    badge.className =
+                        'more-badge';
+
+                    badge.textContent =
+                        `+${files.length - MAX_PREVIEW}`;
+
+                    preview.appendChild(badge);
+
+                }
+
+            });
+
+        // TOGGLE MODE
+
+        function setFolderMode(isFolder){
+
+            const input =
+                document.getElementById(
+                    'batch-input'
+                );
+
+            const uploadText =
+                document.querySelector(
+                    '#batch-area .upload-text'
+                );
+
+            input.value = '';
+
+            document.getElementById(
+                'batch-label'
+            ).textContent = '';
+
+            document.getElementById(
+                'batch-preview'
+            ).innerHTML = '';
+
+            if(isFolder){
+
+                input.setAttribute(
+                    'webkitdirectory',
+                    ''
+                );
+
+                uploadText.innerHTML =
+                    '<strong>Click to choose folder</strong> ya multiple images';
+
+            }else{
+
+                input.removeAttribute(
+                    'webkitdirectory'
+                );
+
+                uploadText.innerHTML =
+                    '<strong>Click to choose images</strong> (Ctrl+Click for multiple)';
+
+            }
+
+        }
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+flask
+flask-sqlalchemy
+flask-bcrypt
+pillow
+numpy
+python-dotenv
